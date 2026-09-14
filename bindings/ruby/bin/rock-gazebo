@@ -116,7 +116,7 @@ begin
         timer.start(2000)
         Vizkit.exec
     elsif gui == 'gzclient'
-        gzclient_pid = Rock::Gazebo.spawn('gz', "gui")
+        gzclient_pid = Rock::Gazebo.spawn('gz', 'sim', '-g')
         subprocesses[gzclient_pid] = 'gzclient'
         terminated_pid = Process.waitpid
         puts "#{subprocesses[terminated_pid]} finished (#{terminated_pid})"
