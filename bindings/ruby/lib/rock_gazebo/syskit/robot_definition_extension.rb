@@ -41,7 +41,7 @@ module RockGazebo
                 return unless (device_m = resolve_plugin_device_model(task_model))
 
                 device_name = [
-                    (name_scope unless name_scope.empty?),
+                    (name_scope unless name_scope&.empty?),
                     task_name
                 ].compact.join("_")
                 device =
@@ -681,6 +681,9 @@ module RockGazebo
                 end
 
                 deployment_hint = "#{deployment_prefix}#{model_path}"
+                unless deployment_hint.empty? || deployment_hint.end_with?("::")
+                    deployment_hint += "::"
+                end
                 plugin.xml.elements.to_a("task").map do |task_element|
                     task_model_name = task_element.attributes["model"]
                     # ModelTask is supported directly, ignore here

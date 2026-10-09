@@ -61,7 +61,21 @@ describe 'rock_gazebo::ModelTask' do
         end
 
         it 'exports the state of all the non-fixed joints' do
-            joints = configure_start_and_read_one_new_sample 'joints_samples'
+            reader = task.port('joints_samples').reader
+            writer = task.port('joints_cmd').writer
+            initialize_joint_positions(writer)
+
+            joints = nil
+            poll_until do
+                if (sample = reader.read_new)
+                    joints = sample
+                    (-0.1..0.11).include?(joints.elements[0].position) &&
+                        (0.19..0.31).include?(joints.elements[1].position) &&
+                        (0.39..0.51).include?(joints.elements[2].position) &&
+                        (0.59..0.71).include?(joints.elements[3].position)
+                end
+            end
+
             assert_equal %w[m::j_00 m::j_01 m::child_j_00 m::child_j_01],
                          joints.names
 
@@ -129,24 +143,54 @@ describe 'rock_gazebo::ModelTask' do
             end
         end
 
-        it 'exports values at the simulation rate' do
+        it "exports values at the simulation rate" do
             task.exported_joints = [Types.rock_gazebo.JointExport.new(
-                port_name: 'test', prefix: '',
+                port_name: "test", prefix: "",
                 joints: %w[m::child_j_00 m::j_01],
                 port_period: Time.at(0)
             )]
-            samples = configure_start_read_samples_and_stop 'test_samples', 0.5
-            assert_includes (22..28), samples.size
+
+            reader = create_active_reader("test_samples", type: :buffer, size: 100)
+
+            samples = []
+            poll_until(timeout: 10, message: "did not receive 25 samples") do
+                while (s = reader.read_new)
+                    samples << s
+                end
+                samples.size >= 25
+            end
+            @task.stop
+
+            samples = samples.first(25)
+            assert_equal 25, samples.size
+
+            time_delta = samples.last.time - samples.first.time
+            assert_in_delta 0.48, time_delta, 0.001
         end
 
-        it 'allows to control the output period of a joint export' do
+        it "allows to control the output period of a joint export" do
             task.exported_joints = [Types.rock_gazebo.JointExport.new(
-                port_name: 'test', prefix: '',
+                port_name: "test", prefix: "",
                 joints: %w[m::child_j_00 m::j_01],
                 port_period: Time.at(0.1)
             )]
-            samples = configure_start_read_samples_and_stop 'test_samples', 0.5
-            assert (4..6).include?(samples.size)
+
+            reader = create_active_reader("test_samples", type: :buffer, size: 100)
+
+            samples = []
+            poll_until(timeout: 10, message: "did not receive 5 samples") do
+                while (s = reader.read_new)
+                    samples << s
+                end
+                samples.size >= 5
+            end
+            @task.stop
+
+            samples = samples.first(5)
+            assert_equal 5, samples.size
+
+            time_delta = samples.last.time - samples.first.time
+            assert_in_delta 0.4, time_delta, 0.01
         end
 
         it "handles joints given relatively to the model" do

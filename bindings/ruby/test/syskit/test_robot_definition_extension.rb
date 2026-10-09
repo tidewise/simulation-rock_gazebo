@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rock_gazebo/syskit/test'
-require_relative 'helpers'
+require_relative '../helpers'
 
 module RockGazebo
     module Syskit
@@ -423,6 +423,65 @@ module RockGazebo
                                  device.frame_transform.from
                     assert_equal 'world',
                                  device.frame_transform.to
+                end
+            end
+
+            describe "model with model-level plugin task" do
+                before do
+                    xml = <<~XML
+                        <sdf version="1.6"><world name="w">
+                            <model name="robot">
+                                <link name="root" />
+                                <plugin name="rock_gazebo::PluginTask" filename="rock_gazebo">
+                                    <task model="rock_gazebo::ModelTask" />
+                                    <task name="gps" model="rock_gazebo::GPSTask" />
+                                </plugin>
+                            </model>
+                        </world></sdf>
+                    XML
+                    root = ::SDF::Root.new(REXML::Document.new(xml).root)
+                    @robot_sdf = root.each_world.first.each_model.first
+                    @robot_model.load_gazebo(
+                        @robot_sdf, "gazebo",
+                        name: "robot", prefix_device_with_name: true
+                    )
+                end
+
+                it "exposes the model-level plugin task with correct deployment hint" do
+                    device = @robot_model.find_device("robot_gps")
+                    assert_equal ["gazebo::robot::gps"],
+                                 device.to_instance_requirements.deployment_hints.to_a
+                end
+            end
+
+            describe "with scope_device_name_with_links_and_submodels enabled" do
+                after do
+                    Syskit.scope_device_name_with_links_and_submodels = false
+                end
+
+                it "scopes the sensor device name without double underscores" do
+                    Syskit.scope_device_name_with_links_and_submodels = true
+
+                    root = ::SDF::Root.load(
+                        expand_fixture_world("attached_simple_model.world"),
+                        flatten: false
+                    )
+                    world = root.each_world.first
+                    robot_sdf = world.each_model.first
+
+                    @robot_model.load_gazebo(
+                        robot_sdf, "gazebo",
+                        name: "renamed_model", prefix_device_with_name: true
+                    )
+
+                    device = @robot_model.find_device(
+                        "renamed_model_included_model_root_c_g_sensor"
+                    )
+                    refute_nil device
+                    assert_equal(
+                        ["gazebo::attachment::included_model::root::c::g_sensor"],
+                        device.to_instance_requirements.deployment_hints.to_a
+                    )
                 end
             end
 

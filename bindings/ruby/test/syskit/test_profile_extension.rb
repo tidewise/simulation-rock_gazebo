@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rock_gazebo/syskit/test'
-require_relative 'helpers'
+require_relative '../helpers'
 
 module RockGazebo
     module Syskit
@@ -36,6 +36,8 @@ module RockGazebo
 
                     assert_equal OroGen.rock_gazebo.LaserScanTask.sensor_srv,
                                  @profile.test_dev.model
+                    assert_equal ["gazebo::test"],
+                                 @profile.test_dev.to_instance_requirements.deployment_hints.to_a
                 end
             end
 

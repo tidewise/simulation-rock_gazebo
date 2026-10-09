@@ -3,7 +3,8 @@
 require "orogen"
 require "rock_gazebo/test"
 require "rock/gazebo"
-require 'minitest/autorun'
+require "rock/bundles"
+require "minitest/autorun"
 
 module Rock
     describe Gazebo do

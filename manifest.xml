@@ -7,11 +7,16 @@
   <license>LGPLv2 or later</license>
 
   <depend package="base/cmake" />
-  <depend package="base/orogen/std" />
-  <depend package="base/orogen/types" />
-  <depend package="drivers/orogen/gps_base" />
-  <depend package="simulation/orogen/rock_gazebo" />
-  <depend package="tools/logger" />
 
-  <depend package="simulation/gazebo" />
+  <!-- dependencies are optional as we want to be able to use the pure ruby SDF integration for syskit without the actual simulation being built and installed -->
+  <depend_optional package="base/orogen/std" />
+  <depend_optional package="base/orogen/types" />
+  <depend_optional package="drivers/orogen/gps_base" />
+  <depend_optional package="simulation/orogen/rock_gazebo" />
+  <depend_optional package="tools/logger" />
+  <depend_optional package="simulation/gazebo" />
+  <depend_optional package="tools/orocos.rb" />
+  <depend_optional package="control/ruby_sdformat" />
+
+  <test_depend package="tools/syskit" />
 </package>
