@@ -8,7 +8,7 @@
             <model name="flat_fish">
                 <plugin name="rock_gazebo::PluginTask" filename="rock_gazebo">
                     <task model="rock_gazebo::ModelTask" />
-                    <task name="thrusters" model="gazebo_usv::ThrusterTask" />
+                    <task name="gps" model="rock_gazebo::GPSTask" />
                 </plugin>
 
                 <link name="body">

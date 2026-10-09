@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'rock_gazebo/syskit/test'
-require_relative 'helpers'
+require_relative '../helpers'
 
 module RockGazebo
     module Syskit

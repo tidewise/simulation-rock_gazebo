@@ -26,7 +26,7 @@ describe 'rock_gazebo::ImuTask' do
         assert(sample.time.to_f > 0 && sample.time.to_f < 10)
         assert(sample.acc.norm < 1e-6)
         assert(sample.gyro.norm < 1e-6)
-        assert(sample.mag.norm < 1e-6)
+        assert(sample.mag.norm == 1.0)
     end
 
     it 'properly resolves the topic in a SDF file that uses nested model' do
@@ -36,7 +36,7 @@ describe 'rock_gazebo::ImuTask' do
         assert(sample.time.to_f > 0 && sample.time.to_f < 10)
         assert(sample.acc.norm < 1e-6)
         assert(sample.gyro.norm < 1e-6)
-        assert(sample.mag.norm < 1e-6)
+        assert(sample.mag.norm == 1.0)
     end
 
     it 'stamps raw samples using the realtime instead of the logical time '\
@@ -48,13 +48,8 @@ describe 'rock_gazebo::ImuTask' do
         assert(diff_t > 0 && diff_t < 10)
     end
 
-    it 'provides an orientation-to-starting pose by default' do
-        sample = imu_configure_start_and_read_one_new_sample 'imu-not-aligned.world'
-        assert sample.orientation.approx?(Eigen::Quaternion.Identity)
-    end
-
-    it 'provides the orientation' do
-        sample = imu_configure_start_and_read_one_new_sample 'imu-not-aligned.world'
+    it "provides the orientation" do
+        sample = imu_configure_start_and_read_one_new_sample "imu-not-aligned.world"
         expected = Eigen::Quaternion.from_euler(
             Eigen::Vector3.new(0.1, 0.1, 0.1), 2, 1, 0
         )

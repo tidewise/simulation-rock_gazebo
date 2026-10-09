@@ -41,8 +41,8 @@ module RockGazebo
         end
 
         it "appends an explicit task name to the context's name" do
-            assert(model_task = @model.find_task_by_name('gazebo::underwater::oil_rig::flat_fish::thrusters'))
-            assert_equal 'gazebo_usv::ThrusterTask', model_task.task_model.name
+            assert(model_task = @model.find_task_by_name("gazebo::underwater::oil_rig::flat_fish::gps"))
+            assert_equal "rock_gazebo::GPSTask", model_task.task_model.name
         end
 
         it "allows to override the task's periodicity" do
