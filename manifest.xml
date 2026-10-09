@@ -14,4 +14,8 @@
   <depend package="tools/logger" />
 
   <depend package="simulation/gazebo" />
+  <depend package="tools/orocos.rb" />
+  <depend package="control/ruby_sdformat" />
+
+  <test_depend package="tools/syskit" />
 </package>
